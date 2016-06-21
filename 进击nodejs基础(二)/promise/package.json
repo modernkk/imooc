@@ -6,7 +6,9 @@
   "dependencies": {
     "bluebird": "^3.4.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "cheerio": "^0.20.0"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
