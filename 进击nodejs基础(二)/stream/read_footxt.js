@@ -8,10 +8,23 @@
 const fs = require('fs');
 var rr = fs.createReadStream('foo.txt');
 
-rr.on('readable', () => {
-  console.log('readable', rr.read());
-});
+// rr.on('readable', () => {
+//   console.log('readable', rr.read());
+// });
 
 rr.on('end', () => {
   console.log('end');
 });
+
+rr.on('data', (chunk) => {
+	console.log('got %d bytes of data', chunk.length);
+	rr.pause();
+	console.log('there will be no more data for 1 second');
+	setTimeout(function() {
+		console.log('now data will start flowing again')
+		rr.resume();
+	}, 1000);
+});
+
+var ww = fs.createWriteStream('file.txt');
+rr.pipe(ww);
