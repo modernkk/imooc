@@ -10,8 +10,28 @@ var videoIds = [348, 637, 197];
 function filterChapters(html) {
   var $ = cheerio.load(html);
   var chapters = $('.chapter');
+  var title = $('.course-infos .path span').text();
+  var number = $('.statics .static-time').next().find('strong').text();
+  number = parseInt(number, 10);
+  // {
+  //   title: title,
+  //   number: number,
+  //   videos: [    
+  //     {
+  //       chapterTitle: '',
+  //       videos: {
+  //         title: '',
+  //         id: 
+  //       }
+  //     }    
+  //   ]
+  // }
 
-  var courseData = [];
+  var courseData = {
+    title: title,
+    number: number,
+    videos: []
+  };
 
   chapters.each(function(item) {
     var chapter = $(this);
@@ -33,21 +53,29 @@ function filterChapters(html) {
       });
     });
 
-    courseData.push(chapterData);
+    courseData.videos.push(chapterData);
   });
 
   return courseData;
 }
 
-function printCourseInfo(courseData) {
-  courseData.forEach(function(item) {
-    var chapterTitle = item.chapterTitle;
+function printCourseInfo(coursesData) {
+  coursesData.forEach(function(courseData) {
+    console.log(courseData.number + ' 人学过 ' + courseData.title + '\n');
+  })
 
-    console.log(chapterTitle + '\n');
+  coursesData.forEach(function(courseData) {
+    console.log('###' + courseData.title + '\n');
 
-    item.videos.forEach(function(video) {
-      console.log(' [' + video.id + ']' +
-        video.title + '\n');
+    courseData.videos.forEach(function(item) {
+      var chapterTitle = item.chapterTitle;
+
+      console.log(chapterTitle + '\n');
+
+      item.videos.forEach(function(video) {
+        console.log(' [' + video.id + ']' +
+          video.title + '\n');
+      });
     });
   });
 }
@@ -87,6 +115,17 @@ videoIds.forEach(function(videoId) {
 Promise
   .all(fetchCourseArray)
   .then(function(pages) {
-    // 
-    console.log('pages' + pages);
+    var coursesData = [];
+
+    pages.forEach(function(html) {
+      var courses = filterChapters(html);
+
+      coursesData.push(courses);
+    });
+
+    coursesData.sort(function(a, b) {
+      return a.number < b.number;
+    });
+
+    printCourseInfo(coursesData);
   });
